@@ -1,0 +1,125 @@
+import { StyleSheet } from 'react-native';
+import { COLORS, SIZES } from '../../constants';
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.lightWhite,
+  },
+  upperRow: {
+    marginHorizontal: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    position: 'absolute',
+    top: SIZES.xxLarge,
+    width: SIZES.width - 44,
+    zIndex: 999,
+  },
+  image: {
+    aspectRatio: 1,
+    resizeMode: 'cover',
+  },
+  details: {
+    marginTop: -SIZES.large,
+    backgroundColor: COLORS.lightWhite,
+    width: SIZES.width,
+    borderTopLeftRadius: SIZES.large,
+    borderTopRightRadius: SIZES.large,
+  },
+  titleRow: {
+    marginHorizontal: 20,
+    paddingBottom: SIZES.small,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: SIZES.width - 44,
+    top: 20,
+  },
+  title: {
+    fontFamily: 'bold',
+    fontSize: SIZES.large,
+  },
+  ratingRow: {
+    paddingBottom: SIZES.small,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: SIZES.width - 10,
+    top: 5,
+  },
+  rating: {
+    top: SIZES.large,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginHorizontal: SIZES.large,
+  },
+  ratingText: {
+    color: COLORS.gray,
+    fontFamily: 'medium',
+    marginHorizontal: 5,
+  },
+  price: {
+    paddingHorizontal: SIZES.large,
+    fontFamily: 'semibold',
+    fontSize: SIZES.large,
+    marginVertical: SIZES.medium,
+  },
+  priceWrapper: {
+    backgroundColor: COLORS.secondary,
+    borderRadius: SIZES.large,
+  },
+  descriptionWrapper: {
+    marginTop: SIZES.xLarge,
+    marginHorizontal: SIZES.large,
+  },
+  description: {
+    fontFamily: 'medium',
+    fontSize: SIZES.large - 2,
+  },
+  descriptionText: {
+    fontFamily: 'regular',
+    fontSize: SIZES.medium - 2,
+    textAlign: 'left',
+  },
+  location: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: COLORS.secondary,
+    marginHorizontal: 12,
+    padding: 5,
+    borderRadius: SIZES.large,
+  },
+  cartRow: {
+    paddingBottom: SIZES.small,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cartBtn: {
+    width: '94%',
+    backgroundColor: COLORS.black,
+    padding: SIZES.xSmall,
+    borderRadius: SIZES.large,
+    marginLeft: 12,
+  },
+  cartTitle: {
+    marginLeft: SIZES.small,
+    textAlign: 'center',
+    fontFamily: 'semibold',
+    fontSize: 15,
+    color: COLORS.lightWhite,
+    textTransform: 'uppercase',
+  },
+  addCart: {
+    width: 42,
+    height: 42,
+    borderRadius: 50,
+    margin: SIZES.small,
+    backgroundColor: COLORS.black,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
