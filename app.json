@@ -1,10 +1,11 @@
 {
   "expo": {
-    "name": "Ecomerce",
-    "slug": "Ecomerce",
+    "name": "Courses",
+    "slug": "Courses",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "notification": false,
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",

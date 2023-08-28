@@ -6,15 +6,19 @@ const BaseUrl = baseUrl;
 
 const baseService = (() => {
   const fetchData = async (endpoint, options) => {
-    const response = await fetch(`${BaseUrl}/${endpoint}`, options);
-    const responseJson = await response.json();
-    const { status, message } = responseJson;
+    try {
+      const response = await fetch(`${BaseUrl}/${endpoint}`, options);
+      const responseJson = await response.json();
+      const { status, message } = responseJson;
 
-    if (status !== 'success') {
-      throw new Error(message);
+      if (status !== 'success') {
+        throw new Error(message);
+      }
+
+      return responseJson;
+    } catch (error) {
+      throw new Error(`Warning: ${error.message}`);
     }
-
-    return responseJson;
   };
 
   const fetchPrivateData = async (endpoint, method = 'GET', payload) => {

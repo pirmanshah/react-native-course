@@ -6,5 +6,7 @@ export { default as Search } from './Search';
 export { default as Account } from './Account';
 export { default as Profile } from './Profile';
 export { default as Checkout } from './Checkout';
+export { default as Register } from './Register';
 export { default as MyLearning } from './MyLearning';
+export { default as Transaction } from './Transaction';
 export { default as ProductDetail } from './ProductDetail';

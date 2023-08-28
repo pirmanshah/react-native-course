@@ -28,7 +28,7 @@ const Search = ({ navigation }) => {
       try {
         setSearch(text);
         setLoading(true);
-        const response = await fetch(`${baseUrl}/course/search?title=${text}`);
+        const response = await fetch(`${baseUrl}/courses/search?title=${text}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }

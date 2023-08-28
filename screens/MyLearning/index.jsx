@@ -1,37 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useMemo } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
+import { AuthContext } from '../../store/AuthContext';
+import courseService from './service/courseService';
 import ListItem from '../../components/listItem';
 import CartIcon from '../../components/cartIcon';
-import { baseUrl } from '../../constants';
 import { styles } from './styles';
 
 const MyLearning = ({ navigation }) => {
-  const userId = 58;
-  const [loading, setLoading] = useState(false);
-  const [courses, setCourses] = useState([]);
+  const authCtx = useContext(AuthContext);
+  const user = authCtx?.user;
+  const userId = useMemo(() => user?.id, [user]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${baseUrl}/course/user?userId=${userId}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const json = await response.json();
-        const data = json.data;
+  const queryClient = useQueryClient();
 
-        setCourses(data.courses);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data: courses = [], isLoading = false } = useQuery(
+    ['my-learning', userId],
+    () => courseService.fetchCourses(userId)
+  );
 
-    fetchData();
-  }, []);
+  const handleRefresh = () => {
+    // Memanfaatkan queryClient untuk merefetch query
+    queryClient.refetchQueries(['my-learning', userId]);
+  };
 
   return (
     <SafeAreaView style={{ backgroundColor: '#FFF' }}>
@@ -44,8 +42,13 @@ const MyLearning = ({ navigation }) => {
           <CartIcon />
         </View>
       </View>
-      <ScrollView style={{ backgroundColor: '#FFF', height: '100%' }}>
-        {loading && (
+      <ScrollView
+        style={{ backgroundColor: '#FFF', height: '100%' }}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />
+        }
+      >
+        {isLoading && (
           <View
             style={{
               flex: 1,
@@ -56,7 +59,7 @@ const MyLearning = ({ navigation }) => {
             <ActivityIndicator size="large" />
           </View>
         )}
-        {!loading && (
+        {!isLoading && (
           <ListItem
             items={courses}
             onPress={() => navigation.navigate('Course')}

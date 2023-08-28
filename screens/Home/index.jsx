@@ -1,35 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useMemo } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
+import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, ScrollView } from 'react-native';
-import { styles } from './styles';
-import Welcome from './components/Welcome';
-import Carousel from './components/Carousel';
-import Heading from './components/Heading';
 import ProductRow from '../../components/product/ProductRow';
-import { baseUrl } from '../../constants';
+import { AuthContext } from '../../store/AuthContext';
 import CartIcon from '../../components/cartIcon';
+import homeService from './service/homeService';
+import Carousel from './components/Carousel';
+import Welcome from './components/Welcome';
+import Heading from './components/Heading';
+import { styles } from './styles';
 
-const Home = ({ navigation }) => {
-  const [data, setData] = useState([]);
+const Home = () => {
+  const authCtx = useContext(AuthContext);
+  const user = authCtx?.user;
+  const userId = user?.id || null;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${baseUrl}/course/populars`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const json = await response.json();
-        const data = json.data;
+  const queryClient = useQueryClient();
 
-        setData(data.courses);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  const { data = [], isLoading = false } = useQuery(['courses', userId], () =>
+    homeService.getAll(userId)
+  );
 
-    fetchData();
-  }, []);
+  const handleRefresh = () => {
+    queryClient.refetchQueries('courses');
+  };
 
   return (
     <SafeAreaView style={{ backgroundColor: '#FFF' }}>
@@ -37,13 +32,17 @@ const Home = ({ navigation }) => {
         <View style={styles.appBar}>
           <View>
             <Text style={styles.location}>Welcome</Text>
-            <Text style={styles.name}>Pirmansyah</Text>
+            <Text style={styles.name}>{user?.nama}</Text>
           </View>
 
           <CartIcon />
         </View>
       </View>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />
+        }
+      >
         <Welcome />
         <Carousel />
         <Heading />

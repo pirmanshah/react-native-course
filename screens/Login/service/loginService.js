@@ -3,17 +3,12 @@ import baseService from '../../../services/BaseService';
 const loginService = (() => {
   const login = async (payload) => {
     try {
-      const { email, password } = payload;
-
       const options = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        body: payload,
       };
 
       const responseJson = await baseService.fetchData('auth', options);

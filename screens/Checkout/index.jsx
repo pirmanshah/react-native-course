@@ -1,65 +1,48 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import mime from 'mime';
+import { AntDesign } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { Picker } from '@react-native-picker/picker';
 import {
   View,
   Text,
-  TouchableOpacity,
-  StyleSheet,
   SafeAreaView,
-  FlatList,
-  Alert,
-  Image,
+  TouchableOpacity,
   TouchableHighlight,
+  TextInput,
+  Alert,
 } from 'react-native';
-import cartService from '../../services/cartService';
+import checkoutService from './service/checkoutService';
+import { AuthContext } from '../../store/AuthContext';
 import { formatRupiah } from '../../utils';
-
-const CartItem = ({ item, onPressRemove }) => {
-  return (
-    <View style={styles.cartItemContainer}>
-      <View>
-        <Text style={styles.cartItemName}>{item.judul}</Text>
-        <Text style={styles.cartItemPrice}>{formatRupiah(item.harga)}</Text>
-      </View>
-      <TouchableOpacity
-        style={styles.removeButton}
-        onPress={() => onPressRemove(item.id)}
-      >
-        <Text style={styles.removeButtonText}>❌</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
+import { styles } from './styles';
 
 const Checkout = () => {
+  const authCtx = useContext(AuthContext);
+  const user = authCtx?.user;
+
   const queryClient = useQueryClient();
-  const { data: cartItems = [] } = useQuery('cart', cartService.fetchCarts);
+
+  const { data: cartItems = [] } = useQuery('cart', checkoutService.fetchCarts);
+  const { data: banks = [] } = useQuery('banks', checkoutService.fetchBanks);
+
   const [image, setImage] = React.useState(null);
+  const [selectedBank, setSelectedBank] = React.useState('');
+  const [sender, setSender] = React.useState('');
+  const [amount, setAmount] = React.useState('');
+  const [account, setAccount] = React.useState('');
 
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: false,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    console.log(result);
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
-  };
-
-  const deleteMutation = useMutation(
-    ({ cartId }) => cartService.deleted(cartId),
+  const mutation = useMutation(
+    ({ formData }) => checkoutService.post(formData),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('cart');
-        Alert.alert('Delete cart success 🎉');
+        Alert.alert('Bukti transaksi berhasil diupload 🎉');
+        setAccount('');
+        setAmount('');
+        setSender('');
       },
       onError: (error) => {
         Alert.alert(error.message);
@@ -67,134 +50,187 @@ const Checkout = () => {
     }
   );
 
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (
+      sender === '' ||
+      selectedBank === '' ||
+      account === '' ||
+      amount === '' ||
+      image === null ||
+      image === ''
+    ) {
+      return Alert.alert('Mohon isi semua informasi ❌');
+    }
+
+    const formData = new FormData();
+    formData.append('sender', sender);
+    formData.append('bankId', selectedBank);
+    formData.append('account', account);
+    formData.append('amount', amount);
+    formData.append('userId', user?.id);
+    formData.append('filename', `${user?.id}-${Date.now()}`);
+    formData.append('carts', JSON.stringify(cartItems));
+
+    const newImageUri = 'file:///' + image.split('file:/').join('');
+    formData.append('file', {
+      uri: newImageUri,
+      type: mime.getType(newImageUri),
+      name: newImageUri.split('/').pop(),
+    });
+
+    mutation.mutate({ formData });
+  };
+
   const getTotalPrice = () => {
     return cartItems.reduce((total, item) => total + Number(item.harga), 0);
   };
 
-  const handleRemoveItem = (cartId) => {
-    deleteMutation.mutate({ cartId });
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={{ letterSpacing: 0.5 }}>
-        Pastikan anda telah melengkapi seluruh informasi sebelum upload bukti
-        transfer. Admin kami akan memeriksa bukti transfer anda dalam 24 jam.
+      <Text
+        style={{
+          paddingBottom: 5,
+          fontSize: 18,
+          fontWeight: 'bold',
+        }}
+      >
+        No Rekening Tujuan
+      </Text>
+      <Text
+        style={{
+          paddingVertical: 5,
+          fontSize: 14,
+          fontWeight: 'bold',
+        }}
+      >
+        632784748 - Mandiri
       </Text>
 
-      <Text style={{ paddingVertical: 10, fontSize: 16, fontWeight: 'bold' }}>
+      <Text
+        style={{
+          paddingTop: 10,
+          paddingBottom: 5,
+          fontSize: 18,
+          fontWeight: 'bold',
+        }}
+      >
         Info Rekening Bank
+      </Text>
+      <Text style={{ paddingVertical: 5, fontSize: 14 }}>
+        Nama pengirim di rekening Bank:
+      </Text>
+      <TextInput
+        style={{
+          height: 40,
+          padding: 8,
+          borderRadius: 4,
+          borderWidth: 0.8,
+          borderColor: 'gray',
+        }}
+        value={sender}
+        placeholder="Nama Lengkap"
+        onChangeText={(text) => setSender(text)}
+      />
+
+      <Text style={{ paddingTop: 5, fontSize: 14 }}>Transfer dari Bank:</Text>
+      <Picker
+        style={{ borderWidth: 1, borderColor: '#171717', fontSize: 14 }}
+        selectedValue={selectedBank}
+        onValueChange={(itemValue, itemIndex) => setSelectedBank(itemValue)}
+      >
+        <Picker.Item
+          label="Pilih Bank"
+          value="not set"
+          style={{ fontSize: 14, padding: 0 }}
+        />
+        {banks.map((bank) => (
+          <Picker.Item
+            key={bank.id}
+            label={bank.name}
+            value={bank.id}
+            style={{ fontSize: 14, padding: 0 }}
+          />
+        ))}
+      </Picker>
+
+      <Text style={{ paddingVertical: 5, fontSize: 14 }}>
+        Nomor rekening anda:
+      </Text>
+      <TextInput
+        style={{
+          height: 40,
+          padding: 8,
+          borderRadius: 4,
+          borderWidth: 0.8,
+          borderColor: 'gray',
+        }}
+        value={account}
+        placeholder="Nomor rekening"
+        onChangeText={(text) => setAccount(text)}
+      />
+
+      <Text style={{ paddingVertical: 5, fontSize: 14 }}>
+        Jumlah ditransfer (Rp):
+      </Text>
+      <TextInput
+        style={{
+          height: 40,
+          padding: 8,
+          borderRadius: 4,
+          borderWidth: 0.8,
+          borderColor: 'gray',
+        }}
+        value={amount}
+        placeholder="Nominal"
+        onChangeText={(text) => setAmount(text)}
+      />
+
+      <Text style={{ paddingVertical: 5, fontSize: 14 }}>
+        Upload bukti transaksi:
       </Text>
 
       <TouchableHighlight
         style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
           height: 60,
           borderWidth: 1,
           borderRadius: 4,
+          display: 'flex',
+          alignItems: 'center',
           borderStyle: 'dashed',
+          justifyContent: 'center',
+          backgroundColor: image ? '#D8FEE4' : '#fff',
         }}
         onPress={pickImage}
       >
-        <MaterialIcons name="cloud-upload" size={35} color="black" />
+        {image ? (
+          <AntDesign name="checkcircle" size={30} color="#171717" />
+        ) : (
+          <MaterialIcons name="cloud-upload" size={35} color="#171717" />
+        )}
       </TouchableHighlight>
-      {image && (
-        <Image source={{ uri: image }} style={{ width: 200, height: '100%' }} />
-      )}
-      {cartItems.length > 0 ? (
-        <>
-          <FlatList
-            data={cartItems}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <CartItem item={item} onPressRemove={handleRemoveItem} />
-            )}
-            contentContainerStyle={{ flexGrow: 1 }} // Add this line
-          />
-          <View style={styles.totalContainer}>
-            <Text style={styles.totalText}>
-              {formatRupiah(getTotalPrice())}
-            </Text>
-            <TouchableOpacity style={styles.checkoutButton}>
-              <Text style={styles.checkoutButtonText}>Checkout</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      ) : (
-        <Text style={styles.emptyCartText}>Your cart is empty.</Text>
-      )}
+
+      <View style={styles.totalContainer}>
+        <Text style={styles.totalText}>{formatRupiah(getTotalPrice())}</Text>
+        <TouchableOpacity style={styles.checkoutButton} onPress={handleSubmit}>
+          <Text style={styles.checkoutButtonText}>Submit</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  cartItemContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderColor: '#EAEAEA',
-  },
-  cartItemName: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  cartItemPrice: {
-    fontSize: 14,
-    marginRight: 10,
-    color: 'gray',
-  },
-  removeButton: {
-    padding: 7,
-    borderWidth: 1,
-    borderColor: '#FF0000',
-    borderRadius: 8,
-  },
-  removeButtonText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-  },
-  totalContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 16,
-    borderTopWidth: 1,
-    borderColor: '#EAEAEA',
-    paddingTop: 16,
-  },
-  totalText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  checkoutButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    backgroundColor: '#171717',
-    borderRadius: 4,
-  },
-  checkoutButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  emptyCartText: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
-});
 
 export default Checkout;

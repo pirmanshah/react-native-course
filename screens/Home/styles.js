@@ -19,5 +19,6 @@ export const styles = StyleSheet.create({
     fontFamily: 'semibold',
     fontSize: SIZES.large,
     color: COLORS.black,
+    textTransform: 'capitalize',
   },
 });

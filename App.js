@@ -9,7 +9,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Fragment, useCallback, useContext, useEffect, useState } from 'react';
 import AuthContextProvider, { AuthContext } from './store/AuthContext';
 import BottomTabNavigation from './navigation/BottomTabNavigation';
-import { Cart, Checkout, Course, Login, ProductDetail } from './screens';
+import {
+  Cart,
+  Checkout,
+  Course,
+  Login,
+  ProductDetail,
+  Register,
+  Transaction,
+} from './screens';
 import { AcsessToken, UserKey } from './constants';
 
 const Stack = createNativeStackNavigator();
@@ -27,6 +35,13 @@ function AuthStack() {
       <Stack.Screen
         name="Login"
         component={Login}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Register"
+        component={Register}
         options={{
           headerShown: false,
         }}
@@ -59,6 +74,13 @@ function AuthenticatedStack() {
         }}
       />
       <Stack.Screen
+        name="Transaction"
+        component={Transaction}
+        options={{
+          title: 'Transaction History',
+        }}
+      />
+      <Stack.Screen
         name="Checkout"
         component={Checkout}
         options={{
@@ -69,7 +91,7 @@ function AuthenticatedStack() {
         name="Course"
         component={Course}
         options={{
-          title: 'Back',
+          title: 'Course Detail',
         }}
       />
       <Stack.Screen

@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, Image } from 'react-native';
 import { SIZES } from '../../constants';
 import { styles } from './styles';
 import { TouchableHighlight } from 'react-native';
@@ -60,6 +62,31 @@ const Account = ({ navigation }) => {
           >
             {user?.email}
           </Text>
+        </View>
+
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            marginTop: 20,
+            gap: 10,
+          }}
+        >
+          <TouchableOpacity
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: 15,
+              borderRadius: 4,
+              backgroundColor: '#FDE7D3',
+            }}
+            onPress={() => navigation.navigate('Transaction')}
+          >
+            <FontAwesome name="history" size={28} color="#F8AD51" />
+            <Text style={{ color: '#F8AD51' }}>Transaction History</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={{ marginTop: SIZES.xLarge }}>
