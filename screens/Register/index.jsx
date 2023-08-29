@@ -4,7 +4,14 @@ import { useFormik } from 'formik';
 import { useQuery } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import RadioGroup from 'react-native-radio-buttons-group';
-import { View, Text, TextInput, TouchableHighlight, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  Alert,
+  TextInput,
+  ScrollView,
+  TouchableHighlight,
+} from 'react-native';
 import registerService from './service/registerService';
 import { SIZES } from '../../constants';
 import { styles } from './styles';
@@ -12,11 +19,17 @@ import { styles } from './styles';
 const Register = () => {
   const navigation = useNavigation();
   const [selectedId, setSelectedId] = useState();
+  const [selectedTopic, setSelectedTopic] = useState();
+  const [selectedLevel, setSelectedLevel] = useState();
 
   const { data: categories = [] } = useQuery(
     'categories',
     registerService.fetchCategory
   );
+
+  const { data: level = [] } = useQuery('level', registerService.fetchLevel);
+
+  const { data: topic = [] } = useQuery('topic', registerService.fetchTopic);
 
   const formik = useFormik({
     initialValues: {
@@ -40,7 +53,14 @@ const Register = () => {
 
   const handleRegister = async (payload) => {
     try {
-      if (selectedId === null || selectedId === undefined) {
+      if (
+        selectedId === null ||
+        selectedId === undefined ||
+        selectedTopic === null ||
+        selectedTopic === undefined ||
+        selectedLevel === null ||
+        selectedLevel === undefined
+      ) {
         return Alert.alert(
           'Register failed!',
           'Could not register. Please choose one interest!'
@@ -50,12 +70,14 @@ const Register = () => {
       await registerService.register(
         JSON.stringify({
           ...payload,
-          interest: selectedId,
+          categoryId: selectedId,
+          levelId: selectedLevel,
+          topicId: selectedTopic,
         })
       );
 
       formik.resetForm();
-      Alert.alert('Register success!', 'Registration has been successful!');
+      Alert.alert('Register success!', 'Registration has been successful! ✅');
     } catch (error) {
       Alert.alert(
         'Register failed!',
@@ -65,93 +87,123 @@ const Register = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.form}>
-        <Text style={styles.title}>Create new account 📝</Text>
-        <TextInput
-          style={[
-            styles.name,
-            {
-              borderColor:
-                formik.errors.name && formik.touched.name ? 'red' : 'gray',
-            },
-          ]}
-          placeholder="Name"
-          value={formik.values.name}
-          onChangeText={formik.handleChange('name')}
-        />
-        {formik.errors.name && formik.touched.name && (
-          <Text style={styles.errorText}>{formik.errors.name}</Text>
-        )}
-
-        <TextInput
-          style={[
-            styles.email,
-            {
-              borderColor:
-                formik.errors.email && formik.touched.email ? 'red' : 'gray',
-            },
-          ]}
-          placeholder="Email"
-          value={formik.values.email}
-          keyboardType="email-address"
-          onChangeText={formik.handleChange('email')}
-        />
-        {formik.errors.email && formik.touched.email && (
-          <Text style={styles.errorText}>{formik.errors.email}</Text>
-        )}
-        <TextInput
-          style={[
-            styles.password,
-            {
-              borderColor:
-                formik.errors.password && formik.touched.password
-                  ? 'red'
-                  : 'gray',
-            },
-          ]}
-          secureTextEntry
-          placeholder="Password"
-          value={formik.values.password}
-          onChangeText={formik.handleChange('password')}
-        />
-        {formik.errors.password && formik.touched.password && (
-          <Text style={styles.errorText}>{formik.errors.password}</Text>
-        )}
-
-        <Text>Minat Belajar:</Text>
-        <View>
-          <RadioGroup
-            containerStyle={{
-              display: 'flex',
-              justifyContent: 'flex-start',
-              alignItems: 'flex-start',
-            }}
-            selectedId={selectedId}
-            onPress={setSelectedId}
-            radioButtons={categories}
+    <ScrollView style={{ marginTop: 50, paddingBottom: 20 }}>
+      <View style={styles.container}>
+        <View style={styles.form}>
+          <Text style={styles.title}>Create new account 📝</Text>
+          <TextInput
+            style={[
+              styles.name,
+              {
+                borderColor:
+                  formik.errors.name && formik.touched.name ? 'red' : 'gray',
+              },
+            ]}
+            placeholder="Name"
+            value={formik.values.name}
+            onChangeText={formik.handleChange('name')}
           />
-        </View>
+          {formik.errors.name && formik.touched.name && (
+            <Text style={styles.errorText}>{formik.errors.name}</Text>
+          )}
 
-        <View style={{ marginTop: SIZES.large }}>
-          <TouchableHighlight onPress={formik.handleSubmit}>
-            <View style={styles.registerButton}>
-              <Text style={styles.registerText}>Register</Text>
-            </View>
-          </TouchableHighlight>
-        </View>
+          <TextInput
+            style={[
+              styles.email,
+              {
+                borderColor:
+                  formik.errors.email && formik.touched.email ? 'red' : 'gray',
+              },
+            ]}
+            placeholder="Email"
+            value={formik.values.email}
+            keyboardType="email-address"
+            onChangeText={formik.handleChange('email')}
+          />
+          {formik.errors.email && formik.touched.email && (
+            <Text style={styles.errorText}>{formik.errors.email}</Text>
+          )}
+          <TextInput
+            style={[
+              styles.password,
+              {
+                borderColor:
+                  formik.errors.password && formik.touched.password
+                    ? 'red'
+                    : 'gray',
+              },
+            ]}
+            secureTextEntry
+            placeholder="Password"
+            value={formik.values.password}
+            onChangeText={formik.handleChange('password')}
+          />
+          {formik.errors.password && formik.touched.password && (
+            <Text style={styles.errorText}>{formik.errors.password}</Text>
+          )}
 
-        <View style={styles.loginText}>
-          <Text>Already have account?</Text>
-          <Text
-            style={{ color: 'teal' }}
-            onPress={() => navigation.navigate('Login')}
-          >
-            login.
-          </Text>
+          <Text>Level Belajar:</Text>
+          <View>
+            <RadioGroup
+              containerStyle={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+              }}
+              selectedId={selectedLevel}
+              onPress={setSelectedLevel}
+              radioButtons={level}
+            />
+          </View>
+
+          <Text>Topic Belajar:</Text>
+          <View>
+            <RadioGroup
+              containerStyle={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+              }}
+              selectedId={selectedTopic}
+              onPress={setSelectedTopic}
+              radioButtons={topic}
+            />
+          </View>
+
+          <Text>Kategori:</Text>
+          <View>
+            <RadioGroup
+              containerStyle={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+              }}
+              selectedId={selectedId}
+              onPress={setSelectedId}
+              radioButtons={categories}
+            />
+          </View>
+
+          <View style={{ marginTop: SIZES.large }}>
+            <TouchableHighlight onPress={formik.handleSubmit}>
+              <View style={styles.registerButton}>
+                <Text style={styles.registerText}>Register</Text>
+              </View>
+            </TouchableHighlight>
+          </View>
+
+          <View style={styles.loginText}>
+            <Text>Already have account?</Text>
+            <Text
+              style={{ color: 'teal' }}
+              onPress={() => navigation.navigate('Login')}
+            >
+              login.
+            </Text>
+          </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

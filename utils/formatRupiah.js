@@ -1,6 +1,6 @@
 export function formatRupiah(angka) {
   // Konversi angka menjadi string dan hapus semua karakter selain angka
-  const strAngka = angka.toString().replace(/[^0-9]/g, '');
+  const strAngka = angka?.toString().replace(/[^0-9]/g, '');
 
   // Jika string angka kosong, kembalikan '0'
   if (strAngka === '') {
@@ -8,9 +8,9 @@ export function formatRupiah(angka) {
   }
 
   // Format angka dengan separator ribuan (.)
-  const ribuan = strAngka.length % 3;
-  let rupiah = strAngka.substr(0, ribuan);
-  const ribuanArray = strAngka.substr(ribuan).match(/\d{3}/g);
+  const ribuan = strAngka?.length % 3;
+  let rupiah = strAngka?.substr(0, ribuan);
+  const ribuanArray = strAngka?.substr(ribuan).match(/\d{3}/g);
 
   if (ribuanArray) {
     const separator = ribuan ? '.' : '';

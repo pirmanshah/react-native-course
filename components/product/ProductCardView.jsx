@@ -26,6 +26,7 @@ const ProductCardView = ({ item }) => {
   const mutation = useMutation(({ payload }) => cartService.post(payload), {
     onSuccess: () => {
       queryClient.invalidateQueries('cart');
+      queryClient.invalidateQueries('courses');
       Alert.alert('Add to cart success 🎉');
     },
     onError: (error) => {
@@ -58,6 +59,23 @@ const ProductCardView = ({ item }) => {
         <View style={styles.details}>
           <Text style={styles.title}>{item.judul}</Text>
           <Text style={styles.lecture}>{item.deskripsi}</Text>
+
+          <View
+            style={{ backgroundColor: '#f9f9f9', padding: 5, borderRadius: 8 }}
+          >
+            <Text
+              style={{
+                fontSize: 12,
+                color: item.label === 'Recomended' ? 'teal' : 'blue',
+              }}
+            >
+              {item.label}
+            </Text>
+            <Text style={{ fontSize: 12 }}>
+              Similarity: {item?.similarity.toFixed(9)}
+            </Text>
+          </View>
+
           <Text style={styles.price}>{formatRupiah(item.harga)}</Text>
         </View>
         <TouchableOpacity style={styles.addBtn} onPress={() => handleAdd(item)}>

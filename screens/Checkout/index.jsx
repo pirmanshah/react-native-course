@@ -18,6 +18,7 @@ import checkoutService from './service/checkoutService';
 import { AuthContext } from '../../store/AuthContext';
 import { formatRupiah } from '../../utils';
 import { styles } from './styles';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 const Checkout = () => {
   const authCtx = useContext(AuthContext);
@@ -25,8 +26,14 @@ const Checkout = () => {
 
   const queryClient = useQueryClient();
 
-  const { data: cartItems = [] } = useQuery('cart', checkoutService.fetchCarts);
-  const { data: banks = [] } = useQuery('banks', checkoutService.fetchBanks);
+  const { data: cartItems = [], isLoading: cartLoading = false } = useQuery(
+    'cart',
+    checkoutService.fetchCarts
+  );
+  const { data: banks = [], isLoading: bankLoading = false } = useQuery(
+    'banks',
+    checkoutService.fetchBanks
+  );
 
   const [image, setImage] = React.useState(null);
   const [selectedBank, setSelectedBank] = React.useState('');
@@ -98,6 +105,10 @@ const Checkout = () => {
   const getTotalPrice = () => {
     return cartItems.reduce((total, item) => total + Number(item.harga), 0);
   };
+
+  if (cartLoading || bankLoading) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>

@@ -7,19 +7,21 @@ import {
   SafeAreaView,
   TouchableHighlight,
   StyleSheet,
-  ScrollView,
 } from 'react-native';
 import AccordionList from '../../components/AccordionList';
 import courseService from './service/courseService';
 import { getYouTubeVideoId } from '../../utils';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
-const Course = () => {
+const Course = ({ route }) => {
+  const { courseId } = route.params;
+
   const [link, setLink] = useState('');
   const [playing, setPlaying] = useState(false);
-  const courseId = 44; // Replace with the desired course ID
 
-  const { data = [] } = useQuery(['course-detail', courseId], () =>
-    courseService.getByCourseId(courseId)
+  const { data = [], isLoading = false } = useQuery(
+    ['course-detail', courseId],
+    () => courseService.getByCourseId(courseId)
   );
 
   const onStateChange = useCallback((state) => {
@@ -32,6 +34,10 @@ const Course = () => {
   const togglePlaying = useCallback(() => {
     setPlaying((prev) => !prev);
   }, []);
+
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <SafeAreaView
@@ -80,13 +86,10 @@ const Course = () => {
       </View>
       <View style={styles.courseContentContainer}>
         <Text style={styles.courseContentTitle}>Course content</Text>
-        <ScrollView>
-          {/* Debugging: Ensure that there's content inside AccordionList */}
-          <AccordionList
-            data={data?.courses}
-            onClick={(link) => setLink(getYouTubeVideoId(link))}
-          />
-        </ScrollView>
+        <AccordionList
+          data={data?.courses}
+          onClick={(link) => setLink(getYouTubeVideoId(link))}
+        />
       </View>
     </SafeAreaView>
   );

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import cartService from '../services/cartService';
 import { formatRupiah } from '../utils';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const CartItem = ({ item, onPressRemove }) => {
   return (
@@ -31,7 +32,10 @@ const CartItem = ({ item, onPressRemove }) => {
 
 const Cart = ({ navigation }) => {
   const queryClient = useQueryClient();
-  const { data: cartItems = [] } = useQuery('cart', cartService.fetchCarts);
+  const { data: cartItems = [], isLoading = false } = useQuery(
+    'cart',
+    cartService.fetchCarts
+  );
 
   const deleteMutation = useMutation(
     ({ cartId }) => cartService.deleted(cartId),
@@ -53,6 +57,10 @@ const Cart = ({ navigation }) => {
   const handleRemoveItem = (cartId) => {
     deleteMutation.mutate({ cartId });
   };
+
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>

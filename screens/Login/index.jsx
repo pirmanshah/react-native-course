@@ -48,6 +48,7 @@ const Login = () => {
 
       authCtx?.authenticate(accessToken, user);
     } catch (error) {
+      console.log(error);
       showAlertFail();
     } finally {
       setIsAuthenticating(false);

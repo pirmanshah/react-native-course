@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, SafeAreaView, FlatList } from 'react-native';
 import transactionService from './service/transactionService';
 import { AuthContext } from '../../store/AuthContext';
 import { formatDate } from '../../utils';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 const TransactionItem = ({ item }) => {
   return (
@@ -30,10 +31,14 @@ const Transaction = ({ navigation }) => {
   const user = authCtx?.user;
   const userId = user?.id;
 
-  const { data: transactions = [] } = useQuery(
+  const { data: transactions = [], isLoading = false } = useQuery(
     ['transaction-history', userId],
     () => transactionService.getByUserId(userId)
   );
+
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>

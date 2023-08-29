@@ -1,5 +1,4 @@
 import { useFonts } from 'expo-font';
-import AppLoading from 'expo-app-loading';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { NavigationContainer } from '@react-navigation/native';
@@ -118,7 +117,6 @@ function Navigation() {
 
 function Root() {
   const [isTryingLogin, setIsTryingLogin] = useState(true);
-
   const authCtx = useContext(AuthContext);
 
   useEffect(() => {
@@ -141,11 +139,26 @@ function Root() {
     fetchToken();
   }, []);
 
-  if (isTryingLogin) {
-    return <AppLoading />;
-  }
+  useEffect(() => {
+    async function hideSplash() {
+      if (!isTryingLogin) {
+        await SplashScreen.hideAsync();
+      }
+    }
 
-  return <Navigation />;
+    hideSplash();
+  }, [isTryingLogin]);
+
+  return (
+    <Fragment>
+      <StatusBar style="auto" translucent={true} />
+      <QueryClientProvider client={queryClient}>
+        <AuthContextProvider>
+          {isTryingLogin ? null : <Navigation />}
+        </AuthContextProvider>
+      </QueryClientProvider>
+    </Fragment>
+  );
 }
 
 export default function App() {

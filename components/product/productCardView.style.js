@@ -4,7 +4,7 @@ import { COLORS, SIZES } from '../../constants';
 export const styles = StyleSheet.create({
   container: {
     width: 200,
-    height: 245,
+    height: 280,
     marginEnd: 12,
     borderRadius: 4,
     backgroundColor: '#FFF',
@@ -40,7 +40,6 @@ export const styles = StyleSheet.create({
     fontFamily: 'regular',
     fontSize: SIZES.small,
     color: COLORS.gray,
-    marginBottom: 10,
   },
   price: {
     fontFamily: 'bold',

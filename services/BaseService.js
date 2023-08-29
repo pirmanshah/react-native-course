@@ -24,7 +24,6 @@ const baseService = (() => {
   const fetchPrivateData = async (endpoint, method = 'GET', payload) => {
     try {
       const token = await AsyncStorage.getItem(AcsessToken);
-
       const options = {
         method: method,
         headers: {

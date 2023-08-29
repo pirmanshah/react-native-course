@@ -25,8 +25,28 @@ const registerService = (() => {
     return categories;
   };
 
+  const fetchLevel = async () => {
+    const responseJson = await baseService.fetchPrivateData('level');
+    const {
+      data: { levels },
+    } = responseJson;
+
+    return levels;
+  };
+
+  const fetchTopic = async () => {
+    const responseJson = await baseService.fetchPrivateData('topic');
+    const {
+      data: { topics },
+    } = responseJson;
+
+    return topics;
+  };
+
   return {
     register,
+    fetchLevel,
+    fetchTopic,
     fetchCategory,
   };
 })();

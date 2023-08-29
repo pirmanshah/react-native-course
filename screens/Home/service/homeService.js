@@ -5,11 +5,9 @@ const homeService = (() => {
     const responseJson = await baseService.fetchPrivateData(
       `courses?userId=${userId}`
     );
-    const {
-      data: { courses },
-    } = responseJson;
+    const { data } = responseJson;
 
-    return courses;
+    return data;
   };
 
   return {

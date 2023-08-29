@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,21 +10,29 @@ import Carousel from './components/Carousel';
 import Welcome from './components/Welcome';
 import Heading from './components/Heading';
 import { styles } from './styles';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 const Home = () => {
   const authCtx = useContext(AuthContext);
   const user = authCtx?.user;
-  const userId = user?.id || null;
 
   const queryClient = useQueryClient();
 
-  const { data = [], isLoading = false } = useQuery(['courses', userId], () =>
-    homeService.getAll(userId)
+  const { data = {}, isLoading = false } = useQuery(
+    ['courses', user?.id],
+    () => homeService.getAll(user?.id),
+    {
+      enabled: !!user?.id, // Only enable the query when user.id is available
+    }
   );
 
   const handleRefresh = () => {
     queryClient.refetchQueries('courses');
   };
+
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <SafeAreaView style={{ backgroundColor: '#FFF' }}>
@@ -46,8 +54,13 @@ const Home = () => {
         <Welcome />
         <Carousel />
         <Heading />
+        <View>
+          <ProductRow products={data?.recommendedCourses} />
+        </View>
+
+        <Heading title="Others" />
         <View style={{ marginTop: 5, marginBottom: 85 }}>
-          <ProductRow products={data} />
+          <ProductRow products={data?.notRecommendedCourses} />
         </View>
       </ScrollView>
     </SafeAreaView>

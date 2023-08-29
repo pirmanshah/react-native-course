@@ -13,23 +13,30 @@ import courseService from './service/courseService';
 import ListItem from '../../components/listItem';
 import CartIcon from '../../components/cartIcon';
 import { styles } from './styles';
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 const MyLearning = ({ navigation }) => {
   const authCtx = useContext(AuthContext);
   const user = authCtx?.user;
-  const userId = useMemo(() => user?.id, [user]);
 
   const queryClient = useQueryClient();
 
   const { data: courses = [], isLoading = false } = useQuery(
-    ['my-learning', userId],
-    () => courseService.fetchCourses(userId)
+    ['my-learning', user?.id],
+    () => courseService.fetchCourses(user?.id),
+    {
+      enabled: !!user?.id, // Only enable the query when user.id is available
+    }
   );
 
   const handleRefresh = () => {
     // Memanfaatkan queryClient untuk merefetch query
-    queryClient.refetchQueries(['my-learning', userId]);
+    queryClient.refetchQueries(['my-learning', user?.id]);
   };
+
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <SafeAreaView style={{ backgroundColor: '#FFF' }}>
@@ -62,7 +69,9 @@ const MyLearning = ({ navigation }) => {
         {!isLoading && (
           <ListItem
             items={courses}
-            onPress={() => navigation.navigate('Course')}
+            onPress={({ id }) =>
+              navigation.navigate('Course', { courseId: id })
+            }
           />
         )}
         <View style={{ marginBottom: 120 }}></View>
