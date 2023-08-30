@@ -1,7 +1,7 @@
 import { Fragment, memo } from 'react';
 import { Rating } from 'react-native-ratings';
 import { Image, Text, TouchableWithoutFeedback, View } from 'react-native';
-import { SIZES } from '../../constants';
+import { SIZES, imageUrl } from '../../constants';
 
 const RenderItems = ({ items, onPress }) => {
   return (
@@ -26,7 +26,7 @@ const RenderItems = ({ items, onPress }) => {
                   borderRadius: 4,
                 }}
                 source={{
-                  uri: item.thumbnail,
+                  uri: imageUrl + item.thumbnail,
                 }}
               />
               <View style={{ alignItems: 'flex-start' }}>

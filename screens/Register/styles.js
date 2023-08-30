@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
   form: { width: '70%' },
   title: {
     fontSize: 22,
-    marginBottom: SIZES.medium + 5,
+    marginBottom: SIZES.medium,
     textAlign: 'center',
   },
   name: {
@@ -51,6 +51,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 5,
-    marginVertical: 20,
+    marginTop: 15,
   },
 });

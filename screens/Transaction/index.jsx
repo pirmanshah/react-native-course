@@ -16,7 +16,12 @@ const TransactionItem = ({ item }) => {
         style={[
           styles.rightText,
           {
-            color: item?.statusId === 1 ? 'teal' : 'red',
+            color:
+              item?.statusId === 1
+                ? 'teal'
+                : item?.statusId === 2
+                ? 'orange'
+                : 'red',
           },
         ]}
       >

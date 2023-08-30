@@ -1,11 +1,10 @@
 import React from 'react';
 import { View, FlatList } from 'react-native';
 import ProductCardView from './ProductCardView';
-import { styles } from './productRow.style';
 
 const ProductRow = ({ products }) => {
   return (
-    <View style={styles.container}>
+    <View>
       <FlatList
         horizontal
         data={products}

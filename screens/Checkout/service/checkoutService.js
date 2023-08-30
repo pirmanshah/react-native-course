@@ -1,4 +1,5 @@
-import { baseUrl } from '../../../constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AcsessToken, baseUrl } from '../../../constants';
 import baseService from '../../../services/BaseService';
 
 const checkoutService = (() => {
@@ -21,16 +22,19 @@ const checkoutService = (() => {
   };
 
   const post = async (formData) => {
+    const token = await AsyncStorage.getItem(AcsessToken);
+
     const options = {
       method: 'POST',
       body: formData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     };
     const response = await fetch(`${baseUrl}/transactions`, options);
     const responseJson = await response.json();
 
-    console.log(responseJson);
-
-    return;
+    return responseJson;
   };
 
   return {

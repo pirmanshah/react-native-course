@@ -14,7 +14,7 @@ import { AuthContext } from '../../store/AuthContext';
 import cartService from '../../services/cartService';
 import { styles } from './productCardView.style';
 import { formatRupiah } from '../../utils';
-import { COLORS } from '../../constants';
+import { COLORS, imageUrl } from '../../constants';
 
 const ProductCardView = ({ item }) => {
   const navigation = useNavigation();
@@ -52,7 +52,7 @@ const ProductCardView = ({ item }) => {
           <Image
             style={styles.image}
             source={{
-              uri: item.thumbnail,
+              uri: imageUrl + item.thumbnail,
             }}
           />
         </View>
@@ -66,7 +66,12 @@ const ProductCardView = ({ item }) => {
             <Text
               style={{
                 fontSize: 12,
-                color: item.label === 'Recomended' ? 'teal' : 'blue',
+                color:
+                  item.label === 'Relevan'
+                    ? 'teal'
+                    : item.label === 'Recomended'
+                    ? 'blue'
+                    : 'red',
               }}
             >
               {item.label}

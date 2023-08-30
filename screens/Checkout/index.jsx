@@ -20,7 +20,7 @@ import { formatRupiah } from '../../utils';
 import { styles } from './styles';
 import LoadingOverlay from '../../components/LoadingOverlay';
 
-const Checkout = () => {
+const Checkout = ({ navigation }) => {
   const authCtx = useContext(AuthContext);
   const user = authCtx?.user;
 
@@ -46,10 +46,12 @@ const Checkout = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('cart');
+        queryClient.invalidateQueries('my-learning');
         Alert.alert('Bukti transaksi berhasil diupload 🎉');
         setAccount('');
         setAmount('');
         setSender('');
+        navigation.navigate('Transaction');
       },
       onError: (error) => {
         Alert.alert(error.message);
@@ -73,21 +75,31 @@ const Checkout = () => {
 
   const handleSubmit = async () => {
     if (
-      sender === '' ||
+      sender.trim() === '' ||
       selectedBank === '' ||
-      account === '' ||
-      amount === '' ||
+      account.trim() === '' ||
+      amount.trim() === '' ||
       image === null ||
       image === ''
     ) {
       return Alert.alert('Mohon isi semua informasi ❌');
     }
 
+    const parsedAmount = Number(amount);
+    if (isNaN(parsedAmount)) {
+      return Alert.alert('Amount harus berupa angka ❌');
+    }
+
+    const parsedAccount = Number(account);
+    if (isNaN(parsedAccount)) {
+      return Alert.alert('Account harus berupa angka ❌');
+    }
+
     const formData = new FormData();
     formData.append('sender', sender);
     formData.append('bankId', selectedBank);
-    formData.append('account', account);
-    formData.append('amount', amount);
+    formData.append('account', parsedAccount);
+    formData.append('amount', parsedAmount);
     formData.append('userId', user?.id);
     formData.append('filename', `${user?.id}-${Date.now()}`);
     formData.append('carts', JSON.stringify(cartItems));

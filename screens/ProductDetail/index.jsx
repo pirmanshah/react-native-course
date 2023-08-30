@@ -11,6 +11,7 @@ import courseService from './service/courseService';
 import CourseButton from './components/CourseButton';
 import { ActivityIndicator } from 'react-native';
 import LoadingOverlay from '../../components/LoadingOverlay';
+import { imageUrl } from '../../constants';
 
 const ProductDetail = ({ route, navigation }) => {
   const { item } = route.params;
@@ -65,7 +66,7 @@ const ProductDetail = ({ route, navigation }) => {
       <Image
         style={styles.image}
         source={{
-          uri: course.thumbnail,
+          uri: imageUrl + course.thumbnail,
         }}
       />
 

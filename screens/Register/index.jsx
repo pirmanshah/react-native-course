@@ -2,8 +2,6 @@ import * as Yup from 'yup';
 import { useState } from 'react';
 import { useFormik } from 'formik';
 import { useQuery } from 'react-query';
-import { useNavigation } from '@react-navigation/native';
-import RadioGroup from 'react-native-radio-buttons-group';
 import {
   View,
   Text,
@@ -12,24 +10,31 @@ import {
   ScrollView,
   TouchableHighlight,
 } from 'react-native';
+import LoadingOverlay from '../../components/LoadingOverlay';
+import CheckboxList from '../../components/CheckboxList';
 import registerService from './service/registerService';
 import { SIZES } from '../../constants';
 import { styles } from './styles';
 
-const Register = () => {
-  const navigation = useNavigation();
-  const [selectedId, setSelectedId] = useState();
-  const [selectedTopic, setSelectedTopic] = useState();
-  const [selectedLevel, setSelectedLevel] = useState();
+const Register = ({ navigation }) => {
+  const [selectedCategory, setSelectedCategory] = useState([]);
+  const [selectedTopic, setSelectedTopic] = useState([]);
+  const [selectedLevel, setSelectedLevel] = useState([]);
 
   const { data: categories = [] } = useQuery(
     'categories',
     registerService.fetchCategory
   );
 
-  const { data: level = [] } = useQuery('level', registerService.fetchLevel);
+  const { data: level = [], isLoading: levelLoading = false } = useQuery(
+    'level',
+    registerService.fetchLevel
+  );
 
-  const { data: topic = [] } = useQuery('topic', registerService.fetchTopic);
+  const { data: topic = [], isLoading: topicLoading = false } = useQuery(
+    'topic',
+    registerService.fetchTopic
+  );
 
   const formik = useFormik({
     initialValues: {
@@ -54,12 +59,9 @@ const Register = () => {
   const handleRegister = async (payload) => {
     try {
       if (
-        selectedId === null ||
-        selectedId === undefined ||
-        selectedTopic === null ||
-        selectedTopic === undefined ||
-        selectedLevel === null ||
-        selectedLevel === undefined
+        selectedCategory.length <= 0 ||
+        selectedTopic.length <= 0 ||
+        selectedLevel.length <= 0
       ) {
         return Alert.alert(
           'Register failed!',
@@ -70,14 +72,15 @@ const Register = () => {
       await registerService.register(
         JSON.stringify({
           ...payload,
-          categoryId: selectedId,
-          levelId: selectedLevel,
-          topicId: selectedTopic,
+          category: selectedCategory.join(', '),
+          level: selectedLevel.join(', '),
+          topic: selectedTopic.join(', '),
         })
       );
 
       formik.resetForm();
       Alert.alert('Register success!', 'Registration has been successful! ✅');
+      navigation.navigate('Login');
     } catch (error) {
       Alert.alert(
         'Register failed!',
@@ -86,8 +89,24 @@ const Register = () => {
     }
   };
 
+  const handleLevelChange = (selectedItems) => {
+    setSelectedLevel(selectedItems);
+  };
+
+  const handleTopicChange = (selectedItems) => {
+    setSelectedTopic(selectedItems);
+  };
+
+  const handleCategoryChange = (selectedItems) => {
+    setSelectedCategory(selectedItems);
+  };
+
+  if (levelLoading || topicLoading) {
+    return <LoadingOverlay />;
+  }
+
   return (
-    <ScrollView style={{ marginTop: 50, paddingBottom: 20 }}>
+    <ScrollView style={{ marginTop: 55, paddingBottom: 20 }}>
       <View style={styles.container}>
         <View style={styles.form}>
           <Text style={styles.title}>Create new account 📝</Text>
@@ -142,47 +161,23 @@ const Register = () => {
             <Text style={styles.errorText}>{formik.errors.password}</Text>
           )}
 
-          <Text>Level Belajar:</Text>
-          <View>
-            <RadioGroup
-              containerStyle={{
-                display: 'flex',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-              }}
-              selectedId={selectedLevel}
-              onPress={setSelectedLevel}
-              radioButtons={level}
-            />
-          </View>
+          <CheckboxList
+            title="Level Belajar:"
+            items={level}
+            onChange={handleLevelChange}
+          />
 
-          <Text>Topic Belajar:</Text>
-          <View>
-            <RadioGroup
-              containerStyle={{
-                display: 'flex',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-              }}
-              selectedId={selectedTopic}
-              onPress={setSelectedTopic}
-              radioButtons={topic}
-            />
-          </View>
+          <CheckboxList
+            items={topic}
+            title="Topic Belajar:"
+            onChange={handleTopicChange}
+          />
 
-          <Text>Kategori:</Text>
-          <View>
-            <RadioGroup
-              containerStyle={{
-                display: 'flex',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-              }}
-              selectedId={selectedId}
-              onPress={setSelectedId}
-              radioButtons={categories}
-            />
-          </View>
+          <CheckboxList
+            items={categories}
+            title="Kategori:"
+            onChange={handleCategoryChange}
+          />
 
           <View style={{ marginTop: SIZES.large }}>
             <TouchableHighlight onPress={formik.handleSubmit}>

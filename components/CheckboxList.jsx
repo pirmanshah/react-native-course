@@ -1,51 +1,46 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import Checkbox from 'expo-checkbox';
+import React, { useEffect, useState } from 'react';
+import { View, Text } from 'react-native';
 
-const CheckboxList = ({ items = [] }) => {
+const CheckboxList = ({ title, items, onChange }) => {
   const [selectedItems, setSelectedItems] = useState([]);
 
-  const toggleItem = (item) => {
-    if (selectedItems.includes(item)) {
-      setSelectedItems(
-        selectedItems.filter((selectedItem) => selectedItem !== item)
-      );
+  const toggleItem = (label) => {
+    if (selectedItems.includes(label)) {
+      setSelectedItems(selectedItems.filter((item) => item !== label));
     } else {
-      setSelectedItems([...selectedItems, item]);
+      setSelectedItems([...selectedItems, label]);
     }
   };
 
+  useEffect(() => {
+    onChange(selectedItems); // Panggil fungsi onChange saat selectedItems berubah
+  }, [selectedItems]);
+
   return (
-    <View>
-      {items.map((item) => (
-        <TouchableOpacity key={item} onPress={() => toggleItem(item)}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View
-              style={{
-                width: 24,
-                height: 24,
-                borderRadius: 12,
-                borderWidth: 2,
-                borderColor: selectedItems.includes(item) ? 'blue' : 'gray',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginRight: 8,
-              }}
-            >
-              {selectedItems.includes(item) && (
-                <View
-                  style={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: 8,
-                    backgroundColor: 'blue',
-                  }}
-                />
-              )}
-            </View>
-            <Text>{item}</Text>
+    <View style={{ marginVertical: 3 }}>
+      <Text style={{ marginBottom: 5 }}>{title}</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
+        {items.map((item) => (
+          <View
+            key={item.value}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginRight: 10,
+              marginBottom: 5,
+              gap: 5,
+            }}
+          >
+            <Checkbox
+              tintColors={{ true: '#4630EB' }}
+              value={selectedItems.includes(item.label)}
+              onValueChange={() => toggleItem(item.label)}
+            />
+            <Text>{item.label}</Text>
           </View>
-        </TouchableOpacity>
-      ))}
+        ))}
+      </View>
     </View>
   );
 };
